@@ -1,0 +1,107 @@
+<?php
+session_start();
+if (!isset($_SESSION["username"])) { header("Location: login.php"); exit; }
+$u = $_SESSION["username"];
+?>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kontrol Paneli "â€ Daltonlar VIP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0c0c12;color:#e4e4e7;font-family:Inter,sans-serif;display:flex;min-height:100vh}
+.sidebar{width:270px;background:#111118;border-right:1px solid #1f1f28;position:fixed;height:100vh;overflow-y:auto}
+.logo{padding:22px 20px;font-weight:800;font-size:17px;color:#eab308;border-bottom:1px solid #1f1f28}
+.userbox{margin:16px;background:#1a1a24;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px}
+.avatar{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#b91c1c,#eab308);display:flex;align-items:center;justify-content:center;font-weight:700;color:#000}
+.menu-sec{padding:16px 20px 6px;color:#555;font-size:11px;letter-spacing:1px}
+.menu-item{padding:11px 20px;display:block;color:#aaa;text-decoration:none;font-size:14px}
+.menu-item:hover,.menu-item.active{background:#1a1a24;color:#fff;border-left:3px solid #eab308}
+.main{margin-left:270px;flex:1;padding:24px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.badge{background:linear-gradient(90deg,#b91c1c,#eab308);color:#000;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.banners{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.banner{background:#000;border:1px solid #eab308;border-radius:12px;padding:28px;text-align:center;font-weight:800;font-size:18px;color:#eab308}
+.welcome{background:#12121a;border:1px solid #27272a;border-radius:12px;padding:16px 20px;margin-bottom:20px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat{background:#12121a;border:1px solid #27272a;border-radius:12px;padding:18px}
+.stat .num{font-size:28px;font-weight:800;margin:8px 0 4px;color:#eab308}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.qcard{background:#18181b;border:1px solid #27272a;border-radius:10px;padding:16px;text-decoration:none;color:#e4e4e7;display:block;transition:.2s}
+@media(max-width:768px){
+.sidebar{width:100%;height:auto;position:relative;border-right:0;border-bottom:1px solid #1f1f28}
+.main{margin-left:0;padding:12px}
+.banners{grid-template-columns:1fr}
+.stats{grid-template-columns:1fr 1fr}
+.grid{grid-template-columns:1fr 1fr;gap:8px}
+.qcard{padding:10px}
+.qcard h4{font-size:12px}
+.qcard p{font-size:10px}
+.logout{position:relative;bottom:auto;left:auto;right:auto;margin:12px}
+.hizli{display:none !important}
+}
+</style>
+</head>
+<body>
+<div class="sidebar">
+<div class="logo">ğÅ¸â€˜â€˜ Daltonlar VIP</div>
+<div class="userbox">
+<div class="avatar"><?=strtoupper(substr($u,0,1))?></div>
+<div><div style="font-weight:600"><?=htmlspecialchars($u)?></div><div style="color:#22c55e;font-size:12px">Ã¢â€”Â VIP ÃƒÅ“ye</div></div>
+</div>
+<div class="menu-sec">API SORGULAR</div>
+<a href="api_tc.php" class="menu-item">ğÅ¸â€ â€ TC Sorgu</a>
+<a href="api_adsoyad.php" class="menu-item">ğÅ¸â€œâ€¹ Ad Soyad</a>
+<a href="api_aile.php" class="menu-item">ğÅ¸â€˜Â¨"ÂğÅ¸â€˜Â©"ÂğÅ¸â€˜Â§ Aile</a>
+<a href="api_sulale.php" class="menu-item">ğÅ¸â€˜Â¨"ÂğÅ¸â€˜Â©"ÂğÅ¸â€˜Â§"ÂğÅ¸â€˜Â¦ Sülale</a>
+<a href="api_tcgsm.php" class="menu-item">ğÅ¸â€œÂ TC Ã¢â€ â€™ GSM</a>
+<a href="api_gsmtc.php" class="menu-item">ğÅ¸â€œÂ± GSM Ã¢â€ â€™ TC</a>
+<a href="api_eokul.php" class="menu-item">ğÅ¸ÂÂ« E-Okul</a>
+<a href="api_adres.php" class="menu-item">ğÅ¸â€œÂ Adres</a>
+<a href="api_tapu.php" class="menu-item">ğÅ¸ÂÂ  Tapu</a>
+<a href="api_adaparsel.php" class="menu-item">ğÅ¸â€”ÂºÃ¯Â¸Â Ada Parsel</a>
+                <a href="dunya_sorgu.php" class="menu-item"><i class="fas fa-globe"></i> Dünya Sorgu</a>
+<a href="dashboard.php" class="menu-item active">ğÅ¸ÂÂ  Ana Sayfa</a>
+<div class="logout"><a href="logout.php">Ã¢ÂÂ» Güvenli Ãƒâ€¡ıkış</a></div>
+</div>
+<div class="main">
+<div class="topbar">
+<div><strong>Kontrol Paneli</strong> <span style="color:#888;margin-left:8px">Daltonlar VIP</span></div>
+<div class="badge">ONLINE</div>
+</div>
+<div class="banners">
+<div class="banner">DALTONLAR.XYZ</div>
+<div class="banner">DALTONLAR.XYZ</div>
+</div>
+<div class="welcome">
+<strong>Tekrar Hoş Geldiniz, <?=htmlspecialchars($u)?></strong> <span class="badge">VIP ÃƒÅ“ye</span>
+<div style="color:#71717a;font-size:13px;margin-top:4px">Daltonlar VIP altyapısı stabil çalışmaktadır.</div>
+</div>
+<div class="stats">
+<div class="stat"><div style="color:#888;font-size:12px">KAYITLI KULLANICILAR</div><div class="num">285</div></div>
+<div class="stat"><div style="color:#888;font-size:12px">VIP ÃƒÅ“YELER</div><div class="num">59</div></div>
+<div class="stat"><div style="color:#888;font-size:12px">Ãƒâ€¡EVRİMİÃƒâ€¡İ</div><div class="num">284</div></div>
+<div class="stat"><div style="color:#888;font-size:12px">BAKİYE</div><div class="num">0.50 TL</div></div>
+</div>
+<div class="hizli" style="background:#12121a;border:1px solid #27272a;border-radius:16px;padding:22px">
+<h3 style="margin-bottom:16px;color:#eab308">Hızlı İşlem</h3>
+<div class="grid">
+<a href="api_tc.php" class="qcard"><h4>TC Sorgu</h4><p>API</p></a>
+<a href="api_adsoyad.php" class="qcard"><h4>Ad Soyad</h4><p>API</p></a>
+<a href="api_aile.php" class="qcard"><h4>Aile</h4><p>API</p></a>
+<a href="api_tcgsm.php" class="qcard"><h4>TC Ã¢â€ â€™ GSM</h4><p>API</p></a>
+<a href="api_gsmtc.php" class="qcard"><h4>GSM Ã¢â€ â€™ TC</h4><p>API</p></a>
+<a href="api_eokul.php" class="qcard"><h4>E-Okul</h4><p>API</p></a>
+</div>
+</div>
+</div>
+<script src="snow.js"></script>
+</body>
+</html>
+
+
+
+

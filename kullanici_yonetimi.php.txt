@@ -1,0 +1,92 @@
+<?php
+session_start();
+if (!isset($_SESSION["username"])) { header("Location: login.php"); exit; }
+if ($_SESSION["is_vip"] != 1) { die("Bu sayfaya sadece VIP yoneticiler girebilir."); }
+
+$db = new PDO("mysql:host=localhost;dbname=wyurs_vip;charset=utf8mb4", "root", "");
+$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+// VIP Yetkisi Değiştirme İşlemi
+if (isset($_GET['toggle_id'])) {
+    $id = intval($_GET['toggle_id']);
+    $stmt = $db->prepare("UPDATE kullanicilar SET is_vip = 1 - is_vip WHERE id = ?");
+    $stmt->execute([$id]);
+    header("Location: kullanici_yonetimi.php");
+    exit;
+}
+
+// Kullanıcıları Çekme
+$kullanicilar = $db->query("SELECT * FROM kullanicilar ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Kullanıcı Yönetimi - Wyurs VIP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #0a0a0a; color: #eee; display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #111; border-right: 2px solid #FFD700; padding: 20px; position: fixed; height: 100%; z-index: 100; }
+        .logo { font-size: 24px; color: #FFD700; font-weight: 900; margin-bottom: 30px; text-align: center; }
+        .sidebar a { display: block; padding: 12px; color: #FFD700 !important; text-decoration: none; border-radius: 8px; margin-bottom: 5px; transition: 0.3s; }
+        .sidebar a:hover { background: #FFD700; color: #000 !important; }
+        .main-content { margin-left: 260px; flex: 1; padding: 30px; }
+        .header-area h2 { color: #FFD700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        table { width: 100%; border-collapse: collapse; background: #111; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #222; }
+        th { background: #16161c; color: #FFD700; font-weight: bold; }
+        tr:hover { background: #16161c; }
+        .btn { padding: 8px 15px; border-radius: 5px; text-decoration: none; font-size: 13px; font-weight: bold; display: inline-block; border: none; cursor: pointer; }
+        .btn-vip { background: #28a745; color: white; }
+        .btn-vip-off { background: #dc3545; color: white; }
+        .badge-vip { background: #FFD700; color: #000; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: bold; }
+        .badge-normal { background: #333; color: #aaa; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">Wyurs VIP</div>
+        <a href="dashboard.php"><i class="fas fa-home"></i> Ana Sayfa</a>
+        <a href="kullanici_yonetimi.php" style="background: #FFD700; color: #000 !important;"><i class="fas fa-users"></i> Kullanıcı Yönetimi</a>
+        <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
+    </div>
+    <div class="main-content">
+        <div class="header-area"><h2><i class="fas fa-users-cog"></i> Kullanıcı Yönetimi ve VIP Yetkilendirme</h2></div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Kullanıcı Adı</th>
+                    <th>Durum</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach($kullanicilar as $k): ?>
+                <tr>
+                    <td><?= $k['id'] ?></td>
+                    <td><?= htmlspecialchars($k['username']) ?></td>
+                    <td>
+                        <?php if($k['is_vip'] == 1): ?>
+                            <span class="badge-vip">VIP ÜYE</span>
+                        <?php else: ?>
+                            <span class="badge-normal">NORMAL ÜYE</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?php if($k['is_vip'] == 1): ?>
+                            <a href="?toggle_id=<?= $k['id'] ?>" class="btn btn-vip-off"><i class="fas fa-times"></i> VIP Kaldır</a>
+                        <?php else: ?>
+                            <a href="?toggle_id=<?= $k['id'] ?>" class="btn btn-vip"><i class="fas fa-check"></i> VIP Yap</a>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

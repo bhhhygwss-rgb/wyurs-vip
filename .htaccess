@@ -1,0 +1,23 @@
+# PHP hata mesajlarini gizle (Hassas veri sizmasini engeller)
+php_flag display_errors off
+
+# Belirli dosya uzantilarina dogrudan erisimi engelle (.sql, .log, .env, .txt vb.)
+<FilesMatch "\.(sql|log|ini|env|json|txt|bak)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Klasor icindekilerin listelenmesini engelle
+Options -Indexes
+
+# Guvenlik Basliklari (XSS ve Tiklama Korumasi)
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Bilinen zararli botlari ve scraper'lari engelle (D??ar?dan veri ?ekilmesini ?nler)
+RewriteEngine On
+RewriteCond %{HTTP_USER_AGENT} (wget|curl|python-requests|scrapy|libwww-perl|HTTrack|Postman) [NC]
+RewriteRule ^.*$ - [F,L]

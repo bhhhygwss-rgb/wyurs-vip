@@ -1,0 +1,281 @@
+﻿<?php
+session_start();
+if (!isset($_SESSION["username"])) {
+    header("Location: login.php");
+    exit;
+}
+$kullanici = $_SESSION["username"];
+?>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontrol Paneli - Wyurs VIP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #0a0a0a; color: #eee; display: flex; min-height: 100vh; overflow-x: hidden; }
+        
+        /* SOL MENÜ */
+        .sidebar {
+    width: 260px;
+    background: #111;
+    border-right: 2px solid #FFD700;
+    padding: 20px;
+    position: fixed;
+    height: 100%;
+    z-index: 100;
+    overflow-y: auto; /* Kaydırmayı aç */
+    overflow-x: hidden;
+    /* Kaydırma çubuğunu gizle (Firefox) */
+    scrollbar-width: thin;
+    scrollbar-color: #FFD700 #111;
+}
+/* Kaydırma çubuğunu gizle (Chrome, Safari, Edge) */
+.sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+.sidebar::-webkit-scrollbar-track {
+    background: #111;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: #FFD700;
+    border-radius: 10px;
+    border: 2px solid #111;
+}
+        .logo { font-size: 24px; color: #FFD700; font-weight: 900; margin-bottom: 30px; text-align: center; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        .sidebar a { display: block; padding: 12px; color: #FFD700 !important; text-decoration: none; border-radius: 8px; margin-bottom: 5px; transition: 0.3s; animation: menuParla 2s ease-in-out infinite !important; }
+        .sidebar a:hover { background: #FFD700; color: #000 !important; animation: none !important; }
+        .sidebar i { margin-right: 10px; width: 20px; text-align: center; }
+        .menu-category { color: rgba(255, 215, 0, 0.6) !important; font-size: 12px; font-weight: bold; letter-spacing: 1px; margin: 20px 0 10px 12px; animation: menuParla 3s ease-in-out infinite !important; }
+
+        /* ANA İÇERİK */
+        .main-content { margin-left: 260px; flex: 1; padding: 30px; position: relative; z-index: 1; }
+        .header-area h2 { color: #FFD700; margin-bottom: 20px; font-size: 22px; display: flex; align-items: center; gap: 10px; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        
+        .welcome-box { background: #16161c; border: 1px solid #2a2a35; border-radius: 12px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; border-left: 4px solid #FFD700; }
+        .welcome-box .avatar { width: 50px; height: 50px; background: #FFD700; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; font-size: 20px; }
+        .welcome-box h3 { margin: 0 0 5px 0; font-size: 18px; color: #FFD700; }
+        .welcome-box p { margin: 0; color: #8b8b99; font-size: 13px; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: #16161c; border: 1px solid #2a2a35; border-radius: 12px; padding: 20px; text-align: center; }
+        .stat-box h4 { margin: 0 0 10px 0; font-size: 13px; color: #FFD700; animation: menuParla 2.5s ease-in-out infinite; }
+        .stat-box .value { font-size: 28px; font-weight: bold; color: #FFD700; }
+
+        .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .card { background: #16161c; border: 1px solid #2a2a35; border-radius: 12px; padding: 20px; cursor: pointer; transition: 0.3s; text-decoration: none; display: block; }
+        .card:hover { border-color: #FFD700; transform: translateY(-3px); box-shadow: 0 0 15px rgba(255,215,0,0.2); }
+        .card h3 { margin: 0 0 5px 0; color: #FFD700; font-size: 16px; animation: menuParla 2.5s ease-in-out infinite; }
+        .card p { margin: 0; color: #8b8b99; font-size: 12px; }
+
+        /* EFEKTLER */
+        .scarface-son { position: fixed !important; bottom: 5% !important; left: 0 !important; right: 0 !important; width: 100% !important; text-align: center !important; font-size: 8vw !important; font-weight: 1000 !important; font-family: 'Arial Black', 'Impact', sans-serif !important; color: #FFD700 !important; pointer-events: none !important; z-index: -1 !important; letter-spacing: 8px !important; -webkit-text-stroke: 2px #b8860b !important; white-space: nowrap !important; animation: scarfaceParla 2s ease-in-out infinite !important; }
+        @keyframes scarfaceParla { 0% { opacity: 0.4; } 50% { opacity: 1; text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 140, 0, 0.8); } 100% { opacity: 0.4; } }
+        
+        .yildiz-arkaplan { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -2; overflow: hidden; }
+        .yildiz { position: absolute; background-color: #fff; border-radius: 50%; box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.8); animation: yildizParla linear infinite; }
+        @keyframes yildizParla { 0% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0.2; transform: scale(0.8); } }
+
+        .meteor-kapsayici { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -2; overflow: hidden; }
+        .meteor { position: absolute; top: -10%; width: 2px; height: 80px; background: linear-gradient(to bottom, rgba(255, 215, 0, 1), rgba(255, 140, 0, 0.5), transparent); transform: rotate(45deg); animation: meteorDus linear infinite; }
+        @keyframes meteorDus { 0% { transform: translateY(-100px) translateX(0) rotate(45deg); opacity: 1; } 100% { transform: translateY(120vh) translateX(-50vw) rotate(45deg); opacity: 0; } }
+
+        /* MÜZİK PANELİ */
+        #muzik-paneli { position: fixed; bottom: 20px; right: 20px; background: rgba(15,15,15,0.95); border: 2px solid #FFD700; border-radius: 50px; padding: 8px 15px; z-index: 9999999; color: #FFD700; display: flex; align-items: center; gap: 10px; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
+        #muzik-paneli button { background: #FFD700; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; }
+        #muzik-paneli .sarki-adi { max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        @keyframes menuParla { 0% { opacity: 0.6; } 50% { opacity: 1; text-shadow: 0 0 10px rgba(255,215,0,0.8); } 100% { opacity: 0.6; } }
+
+        @media screen and (max-width: 1024px) {
+            .sidebar {
+    width: 260px;
+    background: #111;
+    border-right: 2px solid #FFD700;
+    padding: 20px;
+    position: fixed;
+    height: 100%;
+    z-index: 100;
+    overflow-y: auto; /* Kaydırmayı aç */
+    overflow-x: hidden;
+    /* Kaydırma çubuğunu gizle (Firefox) */
+    scrollbar-width: thin;
+    scrollbar-color: #FFD700 #111;
+}
+/* Kaydırma çubuğunu gizle (Chrome, Safari, Edge) */
+.sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+.sidebar::-webkit-scrollbar-track {
+    background: #111;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: #FFD700;
+    border-radius: 10px;
+    border: 2px solid #111;
+}
+            .main-content { margin-left: 0; padding: 15px; }
+            .stats-grid, .action-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">Wyurs VIP</div>
+        <a href="dashboard.php"><i class="fas fa-home"></i> Ana Sayfa</a>
+        <a href="profil.php"><i class="fas fa-user"></i> Profil</a>
+        <a href="kullanici_yonetimi.php"><i class="fas fa-users-cog"></i> Kullanıcı Yönetimi</a>
+        <a href="sorgu_gecmisi.php"><i class="fas fa-history"></i> Sorgu Geçmişi</a>
+        <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
+
+        <div class="menu-category">SORGULAR</div>
+        <a href="istihbarat.php"><i class="fas fa-search"></i> İstihbarat & Sorgu</a>
+        <a href="dunya.php"><i class="fas fa-globe"></i> Dünya Sorgu</a>
+
+        <div class="menu-category">API SORGULAR</div>
+        <a href="api_tc.php"><i class="fas fa-id-card"></i> TC Sorgu</a>
+        <a href="api_adsoyad.php"><i class="fas fa-user"></i> Ad Soyad</a>
+        <a href="api_aile.php"><i class="fas fa-users"></i> Aile</a>
+        <a href="api_sulale.php"><i class="fas fa-sitemap"></i> Sülale</a>
+        <a href="api_tcgsm.php"><i class="fas fa-phone"></i> TC → GSM</a>
+        <a href="api_gsmtc.php"><i class="fas fa-mobile-alt"></i> GSM → TC</a>
+        <a href="api_eokul.php"><i class="fas fa-school"></i> E-Okul</a>
+        <a href="api_adres.php"><i class="fas fa-map-marker-alt"></i> Adres</a>
+        <a href="api_tapu.php"><i class="fas fa-file-signature"></i> Tapu</a>
+        <a href="api_adaparsel.php"><i class="fas fa-map"></i> Ada Parsel</a>
+
+        <div class="menu-category">KATALOG</div>
+        <a href="combo_sorgu.php"><i class="fas fa-database"></i> Combo Sorgu</a>
+        <a href="vesikalik_sorgu.php"><i class="fas fa-portrait"></i> Vesikalık Sorgu</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header-area">
+            
+
+<h2><i class="fas fa-tachometer-alt"></i> Kontrol Paneli</h2>
+        </div>
+
+        <div class="welcome-box">
+<div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; perspective: 1000px; padding: 20px 0;">
+    <style>
+        @keyframes neon3DKutu {
+            0%, 100% {
+                text-shadow: 0 1px 0 #ccc, 0 2px 0 #c9c9c9, 0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 10px rgba(0,0,0,.25), 0 10px 10px rgba(0,0,0,.2), 0 20px 20px rgba(0,0,0,.15), 0 0 20px #FFD700, 0 0 40px #FFD700;
+                transform: rotateX(10deg) scale(1);
+                color: #FFD700;
+            }
+            50% {
+                text-shadow: 0 1px 0 #ccc, 0 2px 0 #c9c9c9, 0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 10px rgba(0,0,0,.25), 0 10px 10px rgba(0,0,0,.2), 0 20px 20px rgba(0,0,0,.15), 0 0 30px #FFF, 0 0 60px #FFD700;
+                transform: rotateX(10deg) scale(1.05);
+                color: #FFF;
+            }
+        }
+        .scarface-3d-kutu-ici {
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            font-size: 5rem; /* Boyutu buradan ayarlayabilirsiniz */
+            font-weight: 900;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            animation: neon3DKutu 3s infinite alternate ease-in-out;
+            transform-style: preserve-3d;
+            text-align: center;
+        }
+    </style>
+    <div class="scarface-3d-kutu-ici">SCARFACE VIP</div>
+</div>
+</div>
+
+        <div class="stats-grid">
+            <div class="stat-box"><h4>KAYITLI KULLANICILAR</h4><div class="value">285</div></div>
+            <div class="stat-box"><h4>VIP ÜYELER</h4><div class="value">59</div></div>
+            <div class="stat-box"><h4>ÇEVRİMİÇİ</h4><div class="value">284</div></div>
+            <div class="stat-box"><h4>BAKİYE</h4><div class="value">0.50 TL</div></div>
+        </div>
+
+        <h3 style="color:#FFD700; margin-bottom:15px;"><i class="fas fa-bolt"></i> Hızlı İşlem</h3>
+        <div class="action-grid">
+            <a href="api_tc.php" class="card"><h3>TC Sorgu</h3><p>API</p></a>
+            <a href="api_adsoyad.php" class="card"><h3>Ad Soyad</h3><p>API</p></a>
+            <a href="api_aile.php" class="card"><h3>Aile</h3><p>API</p></a>
+            <a href="api_tcgsm.php" class="card"><h3>TC → GSM</h3><p>API</p></a>
+            <a href="api_gsmtc.php" class="card"><h3>GSM → TC</h3><p>API</p></a>
+            <a href="api_eokul.php" class="card"><h3>E-Okul</h3><p>API</p></a>
+        </div>
+    </div>
+
+    
+
+    <div id="muzik-paneli">
+        <button id="btn-prev">⏮</button>
+        <button id="muzik-btn">▶</button>
+        <button id="btn-next">⏭</button>
+        <span class="sarki-adi" id="sarki-adi">Deha Tuzcu - Hazır</span>
+        <button id="btn-mute">🔊</button>
+    </div>
+    <audio id="dehaPlayer"></audio>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Yıldızlar
+        const yKapsayici = document.createElement('div'); yKapsayici.classList.add('yildiz-arkaplan'); document.body.appendChild(yKapsayici);
+        for (let i = 0; i < 70; i++) {
+            const y = document.createElement('div'); y.classList.add('yildiz');
+            const boyut = Math.random() * 3 + 1;
+            y.style.width = boyut + 'px'; y.style.height = boyut + 'px';
+            y.style.left = Math.random() * 100 + 'vw'; y.style.top = Math.random() * 100 + 'vh';
+            y.style.animationDuration = (Math.random() * 3 + 1.5) + 's'; y.style.animationDelay = Math.random() * 3 + 's';
+            yKapsayici.appendChild(y);
+        }
+
+        // Meteorlar
+        const mKapsayici = document.createElement('div'); mKapsayici.classList.add('meteor-kapsayici'); document.body.appendChild(mKapsayici);
+        setInterval(() => {
+            if (document.querySelectorAll('.meteor').length > 20) return;
+            const m = document.createElement('div'); m.classList.add('meteor');
+            m.style.left = Math.random() * 100 + 'vw';
+            const sure = Math.random() * 2 + 1.5;
+            m.style.animationDuration = sure + 's'; m.style.animationDelay = Math.random() * 2 + 's';
+            m.style.height = (Math.random() * 60 + 40) + 'px';
+            mKapsayici.appendChild(m); setTimeout(() => { m.remove(); }, (sure + 2) * 1000);
+        }, 400);
+
+        // Müzik Sistemi
+        const sarkilar = [
+            "muzikler/DEHA-NC-X-L.mp3",
+            "muzikler/DEHA-NC-VODKA-FONDP-ft-Cakal.mp3",
+            "muzikler/DEHA-NC-Talibana-ft-Reckol-Remix.mp3",
+            "muzikler/DEHA-NC-Paralari-Katla.mp3"
+        ];
+        let suankiSarki = 0;
+        const player = document.getElementById('dehaPlayer');
+        const btnPlay = document.getElementById('muzik-btn');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const btnMute = document.getElementById('btn-mute');
+        const sarkiAdi = document.getElementById('sarki-adi');
+        let oncekiSes = 0.5;
+        player.volume = oncekiSes;
+
+        function sarkiYukle(index) {
+            player.src = sarkilar[index]; player.load();
+            let isim = sarkilar[index].split('/').pop().replace('.mp3', '').replace('DEHA-NC-', '').replace(/-/g, ' ');
+            sarkiAdi.innerText = "Deha Tuzcu - " + isim;
+            player.play().then(() => { btnPlay.innerText = "⏸"; }).catch(() => { btnPlay.innerText = "▶"; });
+        }
+        player.addEventListener('ended', function() { suankiSarki = (suankiSarki + 1) % sarkilar.length; sarkiYukle(suankiSarki); });
+        btnPlay.addEventListener('click', function() { if (player.paused) { if (!player.src) sarkiYukle(0); else player.play(); btnPlay.innerText = "⏸"; } else { player.pause(); btnPlay.innerText = "▶"; } });
+        btnPrev.addEventListener('click', function() { suankiSarki = (suankiSarki - 1 + sarkilar.length) % sarkilar.length; sarkiYukle(suankiSarki); });
+        btnNext.addEventListener('click', function() { suankiSarki = (suankiSarki + 1) % sarkilar.length; sarkiYukle(suankiSarki); });
+        btnMute.addEventListener('click', function() { if (player.volume > 0) { oncekiSes = player.volume; player.volume = 0; btnMute.innerText = "🔇"; } else { player.volume = oncekiSes; btnMute.innerText = "🔊"; } });
+        document.addEventListener('click', function() { if (player.paused && !player.src) sarkiYukle(0); }, { once: true });
+    });
+    </script>
+</body>
+</html>
+
+
+
